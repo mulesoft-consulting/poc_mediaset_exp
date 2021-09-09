@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions name="NotifyChangeService" targetNamespace="http://mulesoft.com/soa" xmlns:impl="http://mulesoft.com/soa" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
+    <wsdl:types>
+      <schema xmlns="http://www.w3.org/2001/XMLSchema" attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:ns1="http://mulesoft.com/soa" targetNamespace="http://mulesoft.com/soa">
+        <element name="NotifyChangeRequest">
+          <complexType>
+            <sequence>
+              <element name="itemId" minOccurs="1" type="string"/>
+              <element name="contentType" minOccurs="1" type="string"/>
+              <element name="versionId" minOccurs="1" type="string"/>
+            </sequence>
+          </complexType>
+        </element>
+        <element name="NotifyChangeResponse">
+          <complexType/>
+        </element>
+        <element name="ServiceFault">
+          <complexType>
+            <sequence>
+              <element name="code" minOccurs="0" type="string"/>
+              <element name="message" minOccurs="0" type="string"/>
+            </sequence>
+          </complexType>
+        </element> 
+ <element name="SetCorredoDigitaleRequest">
+          <complexType>
+            <sequence>
+              <element name="data" minOccurs="1" type="string"/>
+            </sequence>
+          </complexType>
+        </element>
+        <element name="SetCorredoDigitaleDAMProcessResponse">
+          <complexType>
+            <sequence>
+              <element name="code" minOccurs="1" type="string"/>
+              <element name="itemId" minOccurs="1" type="string"/>
+            </sequence>
+          </complexType>
+        </element>
+		
+      
+      </schema>
+    </wsdl:types>
+    <wsdl:message name="NotifyChangeRequestMessage">
+        <wsdl:part name="parameters" element="impl:NotifyChangeRequest"/>
+    </wsdl:message>
+    <wsdl:message name="NotifyChangeResponseMessage">
+        <wsdl:part name="parameters" element="impl:NotifyChangeResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ServiceFault">
+        <wsdl:part name="parameters" element="impl:ServiceFault"/>
+    </wsdl:message>
+   <wsdl:message name="SetCorredoDigitaleRequestMessage">
+        <wsdl:part name="parameters" element="impl:SetCorredoDigitaleRequest"/>
+    </wsdl:message>
+    <wsdl:message name="SetCorredoDigitaleResponseMessage">
+        <wsdl:part name="parameters" element="impl:SetCorredoDigitaleDAMProcessResponse"/>
+    </wsdl:message>
+ 
+    <wsdl:portType name="SoapWebServices">
+        <wsdl:operation name="notifyChange">
+            <wsdl:input message="impl:NotifyChangeRequestMessage"/>
+            <wsdl:output message="impl:NotifyChangeResponseMessage"/>
+            <wsdl:fault name="fault" message="impl:ServiceFault"/>
+        </wsdl:operation>
+		 <wsdl:operation name="setCorredoDigitale">
+            <wsdl:input message="impl:SetCorredoDigitaleRequestMessage"/>
+            <wsdl:output message="impl:SetCorredoDigitaleResponseMessage"/>
+            <wsdl:fault name="fault" message="impl:DAMProcessFault"/>
+        </wsdl:operation>
+    
+    </wsdl:portType>
+	
+    <wsdl:binding name="SoapWebServices" type="impl:SoapWebServices">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="notifyChange">
+            <soap:operation style="document" soapAction="http://mulesoft.com/soa/notifyChange"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="fault">
+		<soap:fault name="fault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+		    <wsdl:operation name="setCorredoDigitale">
+            <soap:operation style="document" soapAction="http://mulesoft.com/soa/setCorredoDigitale"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="fault">
+		<soap:fault name="fault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+      
+    </wsdl:binding>
+    <wsdl:service name="SoapService">
+        <wsdl:port name="SoapWebServices" binding="impl:SoapWebServices">
+            <soap:address location="http://www.toBedefined.org/"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>

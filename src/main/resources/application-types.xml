@@ -1,0 +1,35 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
+  <types:catalog>
+    <types:type name="cdata" format="xml">
+      <types:example format="xml" element="Data" location="examples/data.xml"/>
+    </types:type>
+    <types:type name="value_input" format="json">
+      <types:shape format="weave" example="examples/input.json"><![CDATA[%dw 2.0
+
+type value_input = {|
+  itemId: String, 
+  contentType: String, 
+  versionId: String
+|} {"example": "{\\\"itemId\\\":\\\"itemId\\\",\\\"contentType\\\":\\\"contentType\\\",\\\"versionId\\\":\\\"versionId\\\"}"}
+
+]]></types:shape>
+    </types:type>
+  </types:catalog>
+  <types:enrichment select="#d36382de-f8a1-45b1-826e-c88115cc2613">
+    <types:processor-declaration>
+      <types:output-event>
+        <types:message>
+          <types:payload type="cdata"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#7a62a963-38a8-4187-9917-45e89cd624f9">
+    <types:operation-declaration>
+      <types:inputs>
+        <types:parameter name="value" type="value_input"/>
+      </types:inputs>
+    </types:operation-declaration>
+  </types:enrichment>
+</types:mule>

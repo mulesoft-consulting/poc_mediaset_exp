@@ -1,0 +1,30 @@
+<Data xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+	<TransactionId>1234</TransactionId>
+	
+	<Item itemId="F0002437010001" serviceProvider="BASE" contentType="EPIS" sourceSystem="FU">
+			<Tiles>
+				<Count>2</Count>
+				<ImgWidth>108</ImgWidth>
+				<ImgHeight>60</ImgHeight>
+				<Columns>5</Columns>
+				<Rows>5</Rows>
+				<StartOffset>0</StartOffset>
+				<Interval>10</Interval>
+				<JsonUrl>https://TBD-DAM.mediaset.it /storage/farmUnicaAssetRepo/TileJson410570.fs</JsonUrl>
+				<TileImages>
+					<TileImage>
+						<Id>0</Id>
+						<Size>41069</Size>
+						<Url>https://TBD-DAM.mediaset.it/storage/farmUnicaAssetRepo/1690aba34e689c-03_1.jpg</Url>
+					</TileImage>
+					<TileImage>
+						<Id>1</Id>
+						<Size>37916</Size>
+						<Url>https://TBD-DAM.mediaset.it/storage/farmUnicaAssetRepo/1690aba34e689c-03_2.jpg</Url>
+					</TileImage>
+				</TileImages>
+			</Tiles>
+	</Item>
+	
+</Data>

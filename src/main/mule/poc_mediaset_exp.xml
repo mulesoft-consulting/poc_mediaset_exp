@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<mule xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit-soap="http://www.mulesoft.org/schema/mule/apikit-soap" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/apikit-soap http://www.mulesoft.org/schema/mule/apikit-soap/current/mule-apikit-soap.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd">
+    <http:listener-config name="api-httpListenerConfig">
+        <http:listener-connection host="${http.host}" port="${http.port}"/>
+    </http:listener-config>
+    <apikit-soap:config httpStatusVarName="httpStatus" name="soapkit-config" port="SoapWebServices" service="SoapService" wsdlLocation="SoapMulesoftWSDL.wsdl"/>
+    <configuration-properties doc:name="Configuration properties" doc:id="6995b0c1-62d7-47ce-910d-6f4a02e3ca90" file="properties.yaml" />
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="96ac8f5f-9064-4eb5-af8b-86dc551f3e35" >
+		<http:request-connection host="${proc_api.host}" port="${proc_api.port}" />
+	</http:request-config>
+	<flow name="api-main">
+        <http:listener config-ref="api-httpListenerConfig" path="/SoapService/SoapWebServices">
+            <http:response statusCode="#[attributes.additionalTransportData.statusCode default 200]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[attributes.protocolHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[attributes.additionalTransportData.statusCode default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[attributes.protocolHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit-soap:router config-ref="soapkit-config">
+            <apikit-soap:message>#[payload]</apikit-soap:message>
+            <apikit-soap:attributes>#[
+              %dw 2.0
+              output application/java
+              ---
+              {
+                  headers: attributes.headers,
+                  method: attributes.method,
+                  queryString: attributes.queryString
+            }]</apikit-soap:attributes>
+        </apikit-soap:router>
+    </flow>
+    <flow name="notifyChange:\soapkit-config">
+		<set-variable value='#[output application/json&#10;ns ns0 http://mulesoft.com/soa&#10;---&#10;{&#10;	itemId: payload.body.ns0#NotifyChangeRequest.ns0#itemId default "",&#10;	contentType: payload.body.ns0#NotifyChangeRequest.ns0#contentType default "",&#10;	versionId: payload.body.ns0#NotifyChangeRequest.ns0#versionId default ""&#10;}]' doc:name="Set Variable" doc:id="7a62a963-38a8-4187-9917-45e89cd624f9" variableName="input"/>
+		<http:request method="GET" doc:name="Call_Proc_API_Notify_Change" doc:id="e2d0b2e9-bdd1-474d-97f2-cf1883d34ebd" config-ref="HTTP_Request_configuration" path="#['/notification_proc/' ++ vars.&quot;input&quot;.itemId ++ '/' ++ vars.&quot;input&quot;.contentType]">
+			<http:headers ><![CDATA[#[%dw 2.0
+ns ns0 http://mulesoft.com/soa
+output application/java
+---
+{
+	"versionID" : vars."input".versionId
+}]]]></http:headers>
+		</http:request>
+		<ee:transform doc:id="91d1c4d6-0405-4222-aa48-56481707b8e4">
+            <ee:message>
+                <ee:set-payload><![CDATA[output application/java
+ns ns0 http://mulesoft.com/soa
+---
+{
+	body: {
+		ns0#NotifyChangeResponse: ''
+	} write "application/xml"
+}]]>
+                </ee:set-payload>
+            </ee:message>
+        </ee:transform>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="b2099125-9839-4741-b013-f25ef7d0a982" >
+				<ee:transform doc:name="Transform Message" doc:id="cf5d578c-6fdf-4623-a99a-8980be461504" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[	%dw 2.0
+output application/java
+ns soap http://schemas.xmlsoap.org/soap/envelope
+---
+{
+    body: {
+        soap#Fault: {
+            faultcode: 999,
+            faultstring: error.detailedDescription,
+            ndetail: {
+      Code: '201',
+      message: error.description,
+    }
+        }
+    } write "application/xml"
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<logger level="INFO" doc:name="Logger" doc:id="737fc587-7cb9-49ab-86bc-5e41ea6e19d2" message="#[payload]"/>
+			</on-error-propagate>
+		</error-handler>
+    </flow>
+    <flow name="setCorredoDigitale:\soapkit-config">
+		<set-payload value="#[output application/java&#10;ns ns1 http://mulesoft.com/soa&#10;&#10;---&#10;payload.body.ns1#SetCorredoDigitaleRequest.ns1#data  replace '![CDATA[&lt;' with ('')&#10;replace '&gt;]]' with ('')]" doc:name="Set Payload" doc:id="0a06417d-ab9e-43b6-978d-295d46bc81b9" />
+		<ee:transform doc:name="Transform Message" doc:id="055f691a-cd36-4125-a0cd-9e29c88f2d1d">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/xml
+---
+read(payload,'application/xml')]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="Transform Message" doc:id="d36382de-f8a1-45b1-826e-c88115cc2613" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<http:request method="POST" doc:name="Request_Call_SetCorredoDigitale_Proc_API" doc:id="31b2eccb-0e16-497f-8c90-c233b4e9dc87" config-ref="HTTP_Request_configuration" path="/setcorredodigitale_proc"/>
+		<ee:transform doc:name="Transform Message" doc:id="50f1f1a3-8a10-4bf9-bafc-5487dedac43a" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="a45756e7-1f00-4405-9c85-d60e663cceb1" >
+				<ee:transform doc:name="Transform Message" doc:id="fc683c1a-e76f-466b-9357-47a9b5e5d47e" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[	%dw 2.0
+output application/java
+ns soap http://schemas.xmlsoap.org/soap/envelope
+---
+{
+    body: {
+        soap#Fault: {
+            faultcode: 999,
+            faultstring: error.detailedDescription,
+            ndetail: {
+      Code: '201',
+      message: error.description,
+    }
+        }
+    } write "application/xml"
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<logger level="INFO" doc:name="Logger" doc:id="a8c97de6-2387-4977-b494-42f006962cb1" message="#[payload]"/>
+			</on-error-propagate>
+		</error-handler>
+    </flow>
+</mule>
