@@ -36,7 +36,7 @@
 	    
       <username>umediaset</username>
       <password>Mediaset1</password>
-      <applicationName>soap-api-cicd</applicationName>
+      <applicationName>soap-api-ci-cd</applicationName>
       <target>poc-mediaset-aws</target>
       <environment>Sandbox</environment>
       <provider>MC</provider>
