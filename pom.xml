@@ -2,9 +2,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>com.mycompany</groupId>
+	<groupId>81b13c54-b668-46e6-8f71-2d17d89282d6</groupId>
 	<artifactId>poc_mediaset_exp</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
+	<version>1.0.3</version>
 	<packaging>mule-application</packaging>
 
 	<name>poc_mediaset_exp</name>
@@ -13,7 +13,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-		<app.runtime>4.3.0-20210622</app.runtime>
+		<app.runtime>4.3.0</app.runtime>
 		<mule.maven.plugin.version>3.5.1</mule.maven.plugin.version>
 	</properties>
 
@@ -29,6 +29,48 @@
 				<artifactId>mule-maven-plugin</artifactId>
 				<version>${mule.maven.plugin.version}</version>
 				<extensions>true</extensions>
+				 <configuration>
+    <runtimeFabricDeployment>
+      <uri>https://eu1.anypoint.mulesoft.com</uri>
+      <muleVersion>4.3.0</muleVersion>
+	    
+      <username>umediaset</username>
+      <password>Mediaset1</password>
+      <applicationName>soap-api-ci-cd</applicationName>
+      <target>poc-mediaset-aws</target>
+      <environment>Sandbox</environment>
+      <provider>MC</provider>
+      <replicas>1</replicas>
+      <properties>
+                            <!-- other list of properties will be injected here -->
+                            
+                            <anypoint.platform.client_id>0056194e5a2441dea5ff2dcda04400ef</anypoint.platform.client_id>
+                            <anypoint.platform.client_secret>4EbCFE94EB61496dA7E7B86EE54F35fc</anypoint.platform.client_secret>
+​
+                        </properties>
+      <deploymentSettings>
+        <enforceDeployingReplicasAcrossNodes>false</enforceDeployingReplicasAcrossNodes>
+        <updateStrategy>rolling</updateStrategy>
+        <clustered>false</clustered>
+        <forwardSslSession>false</forwardSslSession>
+        <lastMileSecurity>false</lastMileSecurity>
+        <resources>
+          <cpu>
+            <reserved>20m</reserved>
+            <limit>1000m</limit>
+          </cpu>
+          <memory>
+            <reserved>700Mi</reserved>
+          </memory>
+        </resources>
+        <http>
+          <inbound>
+            <publicUrl>http://app-name.example.com</publicUrl>
+          </inbound>
+        </http>
+      </deploymentSettings>
+    </runtimeFabricDeployment>
+  </configuration>
 			</plugin>
 		</plugins>
 	</build>
@@ -58,7 +100,7 @@
 		<repository>
 			<id>anypoint-exchange-v2</id>
 			<name>Anypoint Exchange</name>
-			<url>https://maven.anypoint.mulesoft.com/api/v2/maven</url>
+			<url>https://maven.eu1.anypoint.mulesoft.com/api/v2/maven</url>
 			<layout>default</layout>
 		</repository>
 		<repository>
@@ -76,9 +118,17 @@
 			<layout>default</layout>
 			<url>https://repository.mulesoft.org/releases/</url>
 			<snapshots>
-				<enabled>false</enabled>
+				<enabled>true</enabled>
 			</snapshots>
 		</pluginRepository>
 	</pluginRepositories>
+	<distributionManagement>
+    <repository>
+      <id>Repository</id>
+      <name>Corporate Repository</name>
+      <url>https://maven.eu1.anypoint.mulesoft.com/api/v3/organizations/81b13c54-b668-46e6-8f71-2d17d89282d6/maven</url>
+      <layout>default</layout>
+    </repository>
+  </distributionManagement>
 
 </project>
